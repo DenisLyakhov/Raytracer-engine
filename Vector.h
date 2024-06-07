@@ -36,6 +36,12 @@ public:
 			this->z * vector.z);
 	}
 
+	__host__ __device__ inline Vector operator/(const Vector& vector) {
+		return Vector(this->x / vector.x,
+			this->y / vector.y,
+			this->z / vector.z);
+	}
+
 	__host__ __device__ inline Vector operator/(float t) {
 		return this->copy() * (1 / t);
 	}
@@ -50,6 +56,12 @@ public:
 		return Vector(this->x + t,
 			this->y + t,
 			this->z + t);
+	}
+
+	__host__ __device__ inline Vector operator-(float t) const {
+		return Vector(this->x - t,
+			this->y - t,
+			this->z - t);
 	}
 
 	__host__ __device__ inline Vector operator-(const Vector& vector) {
@@ -88,6 +100,34 @@ public:
 
 	__host__ __device__ void print() {
 		printf("[%f, %f, %f]", x, y, z);
+	}
+
+	__host__ __device__ float getMaxValue() {
+		float result = this->x;
+
+		if (this->y > result) {
+			result = this->y;
+		}
+
+		if (this->z > result) {
+			result = this->z;
+		}
+
+		return result;
+	}
+
+	__host__ __device__ float getMinValue() {
+		float result = this->x;
+
+		if (this->y < result) {
+			result = this->y;
+		}
+
+		if (this->z < result) {
+			result = this->z;
+		}
+
+		return result;
 	}
 };
 

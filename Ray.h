@@ -17,6 +17,14 @@ public:
 		return origin + (vector * t);
 	}
 
+	// TODO: refactor/remove
+	__device__ inline float getT(Vector point) {
+		// point = origin + vector * t
+		// vector * t = point - origin
+		// t = (point - origin) / vector
+		return ((point - origin) / vector).x;
+	}
+
 	__device__ Ray reflect(Vector normal, Vector newOrigin) {
 		Vector reflectedVector = vector - normal * vector.scalarProduct(normal) * 2;
 		return Ray(

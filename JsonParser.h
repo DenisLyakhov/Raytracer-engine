@@ -6,9 +6,11 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include "Sphere.h"
+#include "Cube.h"
 
 #define SPHERE 0
 #define CONE 1
+#define CUBE 2
 #define DEFAULT -1
 
 #define LAMBERTIAN 0
@@ -41,6 +43,7 @@ private:
 	//Creating objects declarations
 	static Object* createObject(nlohmann::json sphere);
 	static Sphere* createSphere(nlohmann::json sphere);
+	static Cube* createCube(nlohmann::json cube);
 
 	//Creating materials declaration
 	static Material* createMaterial(nlohmann::json material);
@@ -99,6 +102,10 @@ void JsonParser::loadJsonObjectConfigs() {
 			objectConfigs[i].height = (float)object["height"];
 			objectConfigs[i].radius = (float)object["radius"];
 			break;
+		case str2int("cube"):
+			objectConfigs[i].type = CUBE;
+			objectConfigs[i].radius = (float)object["radius"];
+			break;
 		default:
 			objectConfigs[i].type = DEFAULT;
 			break;
@@ -145,6 +152,9 @@ Object* JsonParser::createObject(nlohmann::json object) {
 	case str2int("sphere"):
 		returnObject = createSphere(object);
 		break;
+	case str2int("cube"):
+		returnObject = createCube(object);
+		break;
 	default:
 		returnObject = createSphere(object);
 		break;
@@ -155,6 +165,11 @@ Object* JsonParser::createObject(nlohmann::json object) {
 Sphere* JsonParser::createSphere(nlohmann::json sphere) {
 	return new Sphere(createVector(sphere["vector"]), (float)sphere["radius"], createMaterial(sphere["material"]));
 }
+
+Cube* JsonParser::createCube(nlohmann::json cube) {
+	return new Cube(createVector(cube["vector"]), (float)cube["radius"], createMaterial(cube["material"]));
+}
+
 Material* JsonParser::createMaterial(nlohmann::json material) {
 	std::string value = (std::string)material["type"].get<std::string>();
 	std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) {

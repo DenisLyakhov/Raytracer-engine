@@ -10,6 +10,7 @@
 #include "Metal.h"
 #include "Glass.h"
 #include "Sphere.h"
+#include "Cube.h"
 #include "RayHitRecord.h"
 #include "JsonParser.h"
 
@@ -21,11 +22,11 @@
 using namespace std;
 
 // Image dimensions
-const int displayWidth = 100;
-const int displayHeight = 100;
+const int displayWidth = 640;
+const int displayHeight = 480;
 
 // Camera configuration
-float verticalFov = 20.f / 180 * 3.1415;
+float verticalFov = 40.f / 180 * 3.1415;
 float viewHeight = 2.0 * tan(verticalFov);
 float viewWidth = viewHeight * displayWidth / displayHeight;
 
@@ -157,6 +158,9 @@ __global__ void createWorld(Object** sceneObjects, ObjectConfig* objectConfigs, 
 	switch (config.type) {
 	case SPHERE:
 		sceneObjects[i] = new Sphere(Vector(config.x, config.y, config.z), config.radius, material);
+		break;
+	case CUBE:
+		sceneObjects[i] = new Cube(Vector(config.x, config.y, config.z), config.radius, material);
 		break;
 	}
 }

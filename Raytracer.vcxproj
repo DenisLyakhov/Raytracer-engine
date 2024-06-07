@@ -80,6 +80,7 @@
     <CudaCompile Include="main.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cube.h" />
     <ClInclude Include="Glass.h" />
     <ClInclude Include="JsonParser.h" />
     <ClInclude Include="Lambertian.h" />

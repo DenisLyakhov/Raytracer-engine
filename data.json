@@ -18,7 +18,7 @@
             "radius": 1000.0
         },
         {
-            "type": "sphere",
+            "type": "cube",
             "material": {
                 "type": "lambertian",
                 "rgbpixel": {
@@ -28,7 +28,7 @@
                 }
             },
             "vector": {
-                "x": 0.00,
+                "x": 1.00,
                 "y": 0.00,
                 "z": -1
             },
