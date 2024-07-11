@@ -14,7 +14,7 @@
 #include "RayHitRecord.h"
 #include "JsonParser.h"
 
-#define RAYS_PER_PIXEL 300
+#define RAYS_PER_PIXEL 25
 #define MAX_BOUNCES_PER_RAY 10
 
 #define GRID_WIDTH 16
@@ -22,8 +22,8 @@
 using namespace std;
 
 // Image dimensions
-int displayWidth = 320;
-int displayHeight = 240;
+int displayWidth = 900;
+int displayHeight = 600;
 
 // Camera configuration;
 float viewHeight;
@@ -46,7 +46,7 @@ void setUpDimensions(int x, int y) {
 	viewHeight = 2.0 * tan(verticalFov);
 	viewWidth = viewHeight * displayWidth / displayHeight;
 
-	Vector lookAt = Vector(0.65, 0, -1);
+	Vector lookAt = Vector(0.1, 0.25, -1);
 	Vector up = Vector(0, 1, 0);
 
 	Vector dir = (cameraPos - lookAt).getNormalizedVector();
@@ -66,7 +66,7 @@ void writeImageToFile(string outputImage) {
 }
 
 __device__ RgbPixel getBackgroundPixel(Ray ray) {
-	return RgbPixel(1, 1, 1);
+	return RgbPixel(0.8, 0.8, 1);
 }
 
 // Iterate through objects, get closest ray hit point
