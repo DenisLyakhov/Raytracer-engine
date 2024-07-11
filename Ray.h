@@ -50,6 +50,7 @@ public:
 	__device__ float getReflectanceIndex(float angleCos, float refractionIndex) {
 		double R0 = (1 - refractionIndex) / (1 + refractionIndex);
 		R0 = R0 * R0;
+		// TODO: Remove pow function
 		return R0 + (1 - R0) * pow((1 - angleCos), 5);
 	}
 };

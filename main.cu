@@ -3,6 +3,7 @@
 #include <sstream>
 #include <curand_kernel.h>
 #include <math.h>
+#include <cstdlib>
 
 #include "RgbPixel.h"
 #include "Ray.h"
@@ -13,7 +14,7 @@
 #include "RayHitRecord.h"
 #include "JsonParser.h"
 
-#define RAYS_PER_PIXEL 500
+#define RAYS_PER_PIXEL 25
 #define MAX_BOUNCES_PER_RAY 10
 
 #define GRID_WIDTH 16
@@ -21,27 +22,42 @@
 using namespace std;
 
 // Image dimensions
-const int displayWidth = 100;
-const int displayHeight = 100;
+int displayWidth = 900;
+int displayHeight = 600;
 
-// Camera configuration
-float verticalFov = 20.f / 180 * 3.1415;
-float viewHeight = 2.0 * tan(verticalFov);
-float viewWidth = viewHeight * displayWidth / displayHeight;
+// Camera configuration;
+float viewHeight;
+float viewWidth;
 
-Vector cameraPos = Vector(-2, 2, 1);
-Vector lookAt = Vector(0, 0, -1);
-Vector up = Vector(0, 1, 0);
+Vector cameraPos = Vector(-2, 2, 3);
 
-Vector dir = (cameraPos - lookAt).getNormalizedVector();
-Vector w = up.crossProduct(dir);
-Vector h = dir.crossProduct(w);
+Vector lowerRightPixelPos;
+Vector upperLeftPixelPos;
 
-Vector lowerRightPixelPos = w * viewWidth;
-Vector upperLeftPixelPos = h * viewHeight;
+Vector lowerLeftPixelPos;
 
-Vector lowerLeftPixelPos = cameraPos - lowerRightPixelPos / 2 - upperLeftPixelPos / 2 - dir;
+void setUpDimensions(int x, int y) {
+	if (x != 0 && y != 0) {
+		displayWidth = x;
+		displayHeight = y;
+	}
 
+	float verticalFov = 20.f / 180 * 3.1415;
+	viewHeight = 2.0 * tan(verticalFov);
+	viewWidth = viewHeight * displayWidth / displayHeight;
+
+	Vector lookAt = Vector(0.1, 0.25, -1);
+	Vector up = Vector(0, 1, 0);
+
+	Vector dir = (cameraPos - lookAt).getNormalizedVector();
+	Vector w = up.crossProduct(dir);
+	Vector h = dir.crossProduct(w);
+
+	lowerRightPixelPos = w * viewWidth;
+	upperLeftPixelPos = h * viewHeight;
+
+	lowerLeftPixelPos = cameraPos - lowerRightPixelPos / 2 - upperLeftPixelPos / 2 - dir;
+}
 
 void writeImageToFile(string outputImage) {
 	ofstream out("output_image.ppm");
@@ -50,7 +66,7 @@ void writeImageToFile(string outputImage) {
 }
 
 __device__ RgbPixel getBackgroundPixel(Ray ray) {
-	return RgbPixel(1, 1, 1);
+	return RgbPixel(0.8, 0.8, 1);
 }
 
 // Iterate through objects, get closest ray hit point
@@ -210,7 +226,7 @@ void renderImage() {
 	}
 	writeImageToFile(outputImage.str());
 
-	freeWorld << <1, 1 >> > (sceneObjects, objectsCount);
+	freeWorld<<<1, 1>>>(sceneObjects, objectsCount);
 	cudaDeviceSynchronize();
 
 	cudaFree(sceneObjects);
@@ -218,10 +234,18 @@ void renderImage() {
 	delete[] result;
 }
 
-int main() {
-
+int main(int argc, char* argv[]) {
 	JsonParser::loadJsonObjectConfigs();
 
+	int x = 0;
+	int y = 0;
+
+	if (argc > 2) {
+		x = atoi(argv[1]);
+		y = atoi(argv[2]);
+	}
+
+	setUpDimensions(x, y);
 	renderImage();
 
 	delete[] objectConfigs;
