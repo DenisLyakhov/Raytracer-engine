@@ -12,9 +12,7 @@ struct RayHitRecord {
 	Material* material;
 	bool isFront = true;
 
-	__device__ RayHitRecord() {
-
-	}
+	__device__ RayHitRecord() { }
 
 	__device__ RayHitRecord(Vector point, Vector normal, float t, Material* material, Vector incomingVector) {
 		this->hit = true;

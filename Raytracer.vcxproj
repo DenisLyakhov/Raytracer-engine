@@ -86,6 +86,7 @@
     <ClInclude Include="Metal.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="Raytracer.h" />
     <ClInclude Include="RgbPixel.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Vector.h" />
