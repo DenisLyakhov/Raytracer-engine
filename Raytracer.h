@@ -41,7 +41,7 @@ namespace Raytracer {
 	float viewWidth;
 
 	//Vector cameraPos = Vector(13, 2, 3);
-	Vector cameraPos = Vector(-4, 1.5, 2);
+	Vector cameraPos;
 
 	Vector lowerRightPixelPos;
 	Vector upperLeftPixelPos;
@@ -49,7 +49,7 @@ namespace Raytracer {
 	Vector lowerLeftPixelPos;
 
 	// Setup dimensions
-	__host__ void initialize(int x, int y) {
+	__host__ void initialize(int x, int y, int sceneConfig) {
 		if (x != 0 && y != 0) {
 			displayWidth = x;
 			displayHeight = y;
@@ -60,6 +60,11 @@ namespace Raytracer {
 		//Vector lookAt = Vector(-20, -5, 10);
 		//Vector lookAt = Vector(0, 0, -1);
 		Vector lookAt = Vector(cameraConfig.lookX, cameraConfig.lookY, cameraConfig.lookZ);
+
+		if (sceneConfig == 0) {
+			lookAt = Vector(-20, -5, 10);
+			cameraPos = Vector(13, 2, 3);
+		}
 
 		float verticalFov = 20.f / 180 * 3.1415;
 		viewHeight = 2.0 * tan(verticalFov);

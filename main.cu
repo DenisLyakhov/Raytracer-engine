@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
 	int sceneConfig = 1;
 
-	Raytracer::initialize(x, y);
+	Raytracer::initialize(x, y, sceneConfig);
 
 	Raytracer::renderImage(sceneConfig);
 
