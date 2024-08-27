@@ -16,21 +16,32 @@
 #include "RayHitRecord.h"
 #include "JsonParser.h"
 
-#define RAYS_PER_PIXEL 25
+#define RAYS_PER_PIXEL 50
 #define MAX_BOUNCES_PER_RAY 10
 
 #define GRID_WIDTH 16
 
 namespace Raytracer {
 	// Image dimensions
-	int displayWidth = 900;
-	int displayHeight = 600;
+
+	/*int displayWidth = 1280;
+	int displayHeight = 720;*/
+
+	/*int displayWidth = 640;
+	int displayHeight = 360;*/
+
+	int displayWidth = 2560;
+	int displayHeight = 1440;
+
+	//int displayWidth = 160;
+	//int displayHeight = 90;
 
 	// Camera configuration;
 	float viewHeight;
 	float viewWidth;
 
-	Vector cameraPos = Vector(-2, 2, 3);
+	//Vector cameraPos = Vector(13, 2, 3);
+	Vector cameraPos = Vector(-4, 1.5, 2);
 
 	Vector lowerRightPixelPos;
 	Vector upperLeftPixelPos;
@@ -48,7 +59,9 @@ namespace Raytracer {
 		viewHeight = 2.0 * tan(verticalFov);
 		viewWidth = viewHeight * displayWidth / displayHeight;
 
-		Vector lookAt = Vector(0.1, 0.25, -1);
+		//Vector lookAt = Vector(-20, -5, 10);
+		Vector lookAt = Vector(0, 0, -1);
+
 		Vector up = Vector(0, 1, 0);
 
 		Vector dir = (cameraPos - lookAt).getNormalizedVector();
@@ -179,23 +192,93 @@ namespace Raytracer {
 		}
 	}
 
+	__global__ void createDemoWorld(Object** sceneObjects, ObjectConfig* objectConfigs, int objectsCount) {
+		int i = blockDim.x * blockIdx.x + threadIdx.x;
+
+		if (i == objectsCount - 1) {
+			sceneObjects[i] = new Sphere(Vector(0, -1000, 0), 1000, new Lambertian(RgbPixel(0.4, 0.7, 0.4)));
+			return;
+		} 
+
+		if (i == objectsCount - 2) {
+			sceneObjects[i] = new Sphere(Vector(5, 1, 3), 1, new Glass(RgbPixel(1.0, 1.0, 1.0), 1.33));
+			return;
+		}
+
+		if (i == objectsCount - 3) {
+			sceneObjects[i] = new Sphere(Vector(5, 1, 6), 1, new Metal(RgbPixel(0.8, 0.65, 0.65), 0.0));
+			return;
+		}
+
+		if (i >= objectsCount - 5) {
+			if (i == objectsCount - 4) {
+				sceneObjects[i] = new Sphere(Vector(2, 1, 5), 0.95, new Glass(RgbPixel(1.0, 1.0, 1.0), 0.67));
+				return;
+			}
+			sceneObjects[i] = new Sphere(Vector(2, 1, 5), 1, new Glass(RgbPixel(1.0, 1.0, 1.0), 1.5));
+			return;
+		}
+
+		if (i >= objectsCount) return;
+
+		int x = (i - objectsCount/2) / 10 + 10;
+		int z = (i - objectsCount/2) % 10 + 10;
+
+		curandState localRandState;
+		curand_init(123, i, 0, &localRandState);
+
+		float materialIndex = randomFloat(&localRandState);
+		Vector center(x + 0.5 * randomFloat(&localRandState), 0.15, z + 0.5 * randomFloat(&localRandState));
+
+		if ((center + Vector(-4, -0.2, 0)).getLength() > 0.9) {
+			Material* material;
+
+			if (materialIndex < 0.6) {
+				material = new Lambertian(RgbPixel(randomFloat(&localRandState), randomFloat(&localRandState), randomFloat(&localRandState)));
+				sceneObjects[i] = new Sphere(center, 0.2, material);
+			}
+			else if (materialIndex < 0.8) {
+				material = new Metal(RgbPixel(0.0, 0.5, 0.5), 0.2);
+				sceneObjects[i] = new Sphere(center, 0.2, material);
+			}
+			else {
+				material = new Glass(RgbPixel(1.0, 1.0, 1.0), 1.33);
+				sceneObjects[i] = new Sphere(center, 0.2, material);
+			}
+		}	
+	}
+
 	__global__ void freeWorld(Object** sceneObjects, int objectsCount) {
 		for (int i = 0; i < objectsCount; i++) {
 			delete* (sceneObjects + i);
 		}
 	}
 
-	void renderImage() {
+	void renderImage(int setup) {
 
 		// create scene objects on device
 		Object** sceneObjects;
 		ObjectConfig* devObjectConfigs;
 
-		cudaMalloc((void**)&sceneObjects, objectsCount * sizeof(Object*));
-		cudaMalloc((void**)&devObjectConfigs, objectsCount * sizeof(ObjectConfig));
-		cudaMemcpy(devObjectConfigs, objectConfigs, objectsCount * sizeof(ObjectConfig), cudaMemcpyHostToDevice);
+		// Render scene based on config
+		if (setup != 0) {
+			cudaMalloc((void**)&sceneObjects, objectsCount * sizeof(Object*));
+			cudaMalloc((void**)&devObjectConfigs, objectsCount * sizeof(ObjectConfig));
+			cudaMemcpy(devObjectConfigs, objectConfigs, objectsCount * sizeof(ObjectConfig), cudaMemcpyHostToDevice);
 
-		createWorld << <1, objectsCount >> > (sceneObjects, devObjectConfigs, objectsCount);
+			createWorld << <1, objectsCount >> > (sceneObjects, devObjectConfigs, objectsCount);
+		}
+		// Render demo scene
+		else {
+			objectsCount = 400;
+
+			cudaMalloc((void**)&sceneObjects, objectsCount * sizeof(Object*));
+			cudaMalloc((void**)&devObjectConfigs, objectsCount * sizeof(ObjectConfig));
+			cudaMemcpy(devObjectConfigs, objectConfigs, objectsCount * sizeof(ObjectConfig), cudaMemcpyHostToDevice);
+
+			createDemoWorld << <1, objectsCount >> > (sceneObjects, devObjectConfigs, objectsCount);
+		}
+
 		cudaDeviceSynchronize();
 
 		// define thread grid dimensions

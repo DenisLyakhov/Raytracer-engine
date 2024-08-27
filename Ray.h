@@ -51,6 +51,7 @@ public:
 		double R0 = (1 - refractionIndex) / (1 + refractionIndex);
 		R0 = R0 * R0;
 		// TODO: Remove pow function
-		return R0 + (1 - R0) * pow((1 - angleCos), 5);
+		float a = (1 - angleCos);
+		return R0 + (1 - R0) * a*a*a*a*a;
 	}
 };

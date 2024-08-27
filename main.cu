@@ -1,15 +1,12 @@
 #include <iostream>
 #include <curand_kernel.h>
 #include <math.h>
+#include <chrono>
 
 #include "Raytracer.h"
 
-#define RAYS_PER_PIXEL 25
-#define MAX_BOUNCES_PER_RAY 10
-
-#define GRID_WIDTH 16
-
 using namespace std;
+using namespace std::chrono;
 
 int main(int argc, char* argv[]) {
 	JsonParser::loadJsonObjectConfigs();
@@ -22,8 +19,18 @@ int main(int argc, char* argv[]) {
 		y = atoi(argv[2]);
 	}
 
+	int sceneConfig = 1;
+
 	Raytracer::initialize(x, y);
-	Raytracer::renderImage();
+
+	Raytracer::renderImage(sceneConfig);
+
+	std::clock_t start;
+	start = std::clock();
+
+	Raytracer::renderImage(sceneConfig);
+
+	std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
 	delete[] objectConfigs;
 	return 0;
