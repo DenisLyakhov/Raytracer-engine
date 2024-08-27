@@ -27,11 +27,11 @@ namespace Raytracer {
 	/*int displayWidth = 1280;
 	int displayHeight = 720;*/
 
-	/*int displayWidth = 640;
-	int displayHeight = 360;*/
+	int displayWidth = 640;
+	int displayHeight = 360;
 
-	int displayWidth = 2560;
-	int displayHeight = 1440;
+	/*int displayWidth = 2560;
+	int displayHeight = 1440;*/
 
 	//int displayWidth = 160;
 	//int displayHeight = 90;
@@ -55,12 +55,16 @@ namespace Raytracer {
 			displayHeight = y;
 		}
 
+		cameraPos = Vector(cameraConfig.x, cameraConfig.y, cameraConfig.z);
+
+		//Vector lookAt = Vector(-20, -5, 10);
+		//Vector lookAt = Vector(0, 0, -1);
+		Vector lookAt = Vector(cameraConfig.lookX, cameraConfig.lookY, cameraConfig.lookZ);
+
 		float verticalFov = 20.f / 180 * 3.1415;
 		viewHeight = 2.0 * tan(verticalFov);
 		viewWidth = viewHeight * displayWidth / displayHeight;
 
-		//Vector lookAt = Vector(-20, -5, 10);
-		Vector lookAt = Vector(0, 0, -1);
 
 		Vector up = Vector(0, 1, 0);
 

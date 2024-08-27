@@ -15,6 +15,15 @@
 #define GLASS 1
 #define METAL 2
 
+struct CameraConfig {
+	float x;
+	float y;
+	float z;
+	float lookX;
+	float lookY;
+	float lookZ;
+};
+
 struct ObjectConfig {
 	int type;
 	int material;
@@ -31,6 +40,9 @@ struct ObjectConfig {
 };
 
 nlohmann::json loadedFile;
+
+CameraConfig cameraConfig;
+
 std::vector<Object*> objectsVector;
 int objectsCount;
 
@@ -56,19 +68,19 @@ public:
 	static void loadJsonObjectConfigs();
 };
 
-void JsonParser::loadJsonFile() {
-	std::ifstream inputFile("data.json");
-	if (inputFile.is_open()) {
-		inputFile >> loadedFile;
-		inputFile.close();
-	}
-	if (loadedFile["elements"].is_array()) {
-		for (const auto& element : loadedFile["elements"]) {
-			objectsVector.push_back(createObject(element));
-			// createSphere(element)
-		}
-	}
-}
+//void JsonParser::loadJsonFile() {
+//	std::ifstream inputFile("data.json");
+//	if (inputFile.is_open()) {
+//		inputFile >> loadedFile;
+//		inputFile.close();
+//	}
+//	if (loadedFile["elements"].is_array()) {
+//		for (const auto& element : loadedFile["elements"]) {
+//			objectsVector.push_back(createObject(element));
+//			// createSphere(element)
+//		}
+//	}
+//}
 
 constexpr unsigned int str2int(const char* str, int h = 0) {
 	return !str[h] ? 5381 : (str2int(str, h + 1) * 33) ^ str[h];
@@ -81,10 +93,22 @@ void JsonParser::loadJsonObjectConfigs() {
 		inputFile.close();
 	}
 
+	auto object = loadedFile["config"][0];
+
+	cameraConfig.x = (float)object["x"];
+	cameraConfig.y = (float)object["y"];
+	cameraConfig.z = (float)object["z"];
+
+	cameraConfig.lookX = (float)object["lookX"];
+	cameraConfig.lookY = (float)object["lookY"];
+	cameraConfig.lookZ = (float)object["lookZ"];
+
 	objectsCount = loadedFile["elements"].size();
 	objectConfigs = new ObjectConfig[objectsCount];
 
-	for (int i = 0; i < objectsCount; i++) {
+	for (int index = 0; index < objectsCount; index++) {
+		int i = index;
+
 		auto object = loadedFile["elements"][i];
 
 		std::string type = (std::string)object["type"].get<std::string>();
