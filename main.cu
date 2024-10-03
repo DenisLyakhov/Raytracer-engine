@@ -14,23 +14,19 @@ int main(int argc, char* argv[]) {
 	int x = 0;
 	int y = 0;
 
+	int sceneConfig = 1;
+
 	if (argc > 2) {
 		x = atoi(argv[1]);
 		y = atoi(argv[2]);
+		if (argc > 3) {
+			sceneConfig = atoi(argv[3]);
+		}
 	}
-
-	int sceneConfig = 1;
 
 	Raytracer::initialize(x, y, sceneConfig);
 
 	Raytracer::renderImage(sceneConfig);
-
-	std::clock_t start;
-	start = std::clock();
-
-	Raytracer::renderImage(sceneConfig);
-
-	std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
 
 	delete[] objectConfigs;
 	return 0;

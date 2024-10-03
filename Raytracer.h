@@ -16,7 +16,7 @@
 #include "RayHitRecord.h"
 #include "JsonParser.h"
 
-#define RAYS_PER_PIXEL 50
+#define RAYS_PER_PIXEL 200
 #define MAX_BOUNCES_PER_RAY 10
 
 #define GRID_WIDTH 16
@@ -24,17 +24,8 @@
 namespace Raytracer {
 	// Image dimensions
 
-	/*int displayWidth = 1280;
-	int displayHeight = 720;*/
-
 	int displayWidth = 640;
 	int displayHeight = 360;
-
-	/*int displayWidth = 2560;
-	int displayHeight = 1440;*/
-
-	//int displayWidth = 160;
-	//int displayHeight = 90;
 
 	// Camera configuration;
 	float viewHeight;
